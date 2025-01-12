@@ -1,0 +1,240 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
+        classpath group: 'com.modrinth.minotaur', name: 'Minotaur', version: '2+'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: "com.matthewprenger.cursegradle"
+apply plugin: 'maven-publish'
+apply plugin: 'com.modrinth.minotaur'
+
+group = 'com.luna.hussein'
+version = '1.20.1-1.0.0'
+def env = System.getenv()
+if (env.GITHUB_RUN_NUMBER) {
+    version = version + "+" + "${env.GITHUB_RUN_NUMBER}"
+}
+
+java {
+    archivesBaseName = 'HusseinMod'
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    accessTransformer = file("src/main/resources/access_transformer.cfg")
+    runs {
+        client {
+            workingDirectory project.file('run/client')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                hussein {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run/server')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                hussein {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run/data')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'hussein', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                hussein {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+mixin {
+    add sourceSets.main, "HusseinPlayzYT.refmap.json"
+
+    config "HusseinPlayzYT.mixins.json"
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    maven {
+        name "Modmaven"
+        url "https://modmaven.dev/"
+        content {
+            includeGroup 'appeng'
+        }
+    }
+    maven {
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven {
+        // location of the maven that hosts JEI files since January 2023
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+//    mavenLocal()
+    maven { url = "https://maven.covers1624.net/" }
+    maven { url = "https://dvs1.progwml6.com/files/maven" }
+    maven { url = "https://maven.cil.li/" }
+    maven { url = "https://maven.theillusivec4.top/" }
+    maven {
+        url = "https://maven.squiddev.cc/"
+        content { includeGroup("cc.tweaked") }
+    }
+    maven { url = "https://maven.blamejared.com/" }
+//    maven { url = "https://modmaven.dev/" }
+    maven { url = "https://maven.shadowsoffire.dev/releases"
+        content { includeGroup ("dev.shadowsoffire") }
+    }
+    maven { url "https://maven.ryanliptak.com/" }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.11'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    runtimeOnly fg.deobf("mezz.jei:jei-1.20.1-forge:15.0.0.12")
+    compileOnly fg.deobf("appeng:appliedenergistics2-forge:15.0.9-beta")
+    runtimeOnly fg.deobf("appeng:appliedenergistics2-forge:15.0.9-beta")
+    implementation fg.deobf("com.brandon3055.brandonscore:BrandonsCore:${mc_version}-${bcore_version}:universal")
+    implementation fg.deobf("io.codechicken:CodeChickenLib:${mc_version}-${ccl_version}:universal")
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    compileOnly(fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api"))
+    runtimeOnly(fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}"))
+    implementation fg.deobf("com.brandon3055.draconicevolution:Draconic-Evolution:${mc_version}-${mod_version}:universal")
+//    uncomment the comment under this for appleskin if you want to modify the nice food item
+//    runtimeOnly fg.deobf("squeek.appleskin:appleskin-forge:mc1.20.1-2.5.1")
+
+}
+jar {
+    manifest {
+        manifest {
+            attributes 'FMLAT': 'access_transformer.cfg'
+        }
+        attributes([
+                "Specification-Title"     : "hussein",
+                //"Specification-Vendor": "hussein authors",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                //"Implementation-Vendor": "hussein authors",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs"            : "HusseinPlayzYT.mixins.json"
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+mixin {
+    add sourceSets.main, "HusseinPlayzYT.refmap.json"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    archiveClassifier = 'deobf'
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives deobfJar
+}
+
+curseforge {
+    if (env.CURSE_API_KEY) {
+        apiKey = env.CURSE_API_KEY
+    }
+    project {
+        id = '559313'
+        changelog = 'A changelog can be found at https://github.com/Hexeption/AEInfinityBooster'
+        releaseType = 'release'
+        addGameVersion '1.20'
+        addGameVersion '1.20.1'
+
+        mainArtifact(jar) {
+            displayName = "AEInfinityBooster v$version"
+        }
+        relations {
+            requiredDependency 'applied-energistics-2'
+        }
+    }
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+            artifact sourcesJar
+            artifact deobfJar
+        }
+    }
+
+    // select the repositories you want to publish to
+    repositories {
+        // uncomment to publish to the local maven
+        // mavenLocal()
+        if (env.REPO_PASSWORD) {
+            maven {
+                url = "https://nexus.hexeption.dev/repository/hex-mods/"
+                credentials {
+                    username = "admin"
+                    password = env.REPO_PASSWORD
+                }
+            }
+        }
+    }
+}
+
+modrinth {
+    if (env.MODRINTH_API_KEY) {
+        token = env.MODRINTH_API_KEY
+    }
+    projectId = 'VQhDBNs8'
+    versionName = "AEInfinityBooster v$version"
+    changelog = 'A changelog can be found at https://github.com/Hexeption/AEInfinityBooster'
+    versionNumber = "$version"
+    uploadFile = jar
+    gameVersions = ["1.20.1"]
+    loaders = ["forge"]
+    dependencies {
+        required.version "ae2", "forge-15.0.9-beta"
+    }
+}

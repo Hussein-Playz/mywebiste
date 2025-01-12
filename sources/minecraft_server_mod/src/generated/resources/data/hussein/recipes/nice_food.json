@@ -1,0 +1,43 @@
+{
+  "type": "draconicevolution:fusion_crafting",
+  "catalyst": {
+    "type": "draconicevolution:ingredient_stack",
+    "count": 1,
+    "items": [
+      {
+        "item": "hussein:true_card"
+      }
+    ]
+  },
+  "ingredients": [
+    {
+      "item": "draconicevolution:awakened_core"
+    },
+    {
+      "item": "draconicevolution:awakened_core"
+    },
+    {
+      "item": "draconicevolution:draconium_core"
+    },
+    {
+      "item": "draconicevolution:dragon_heart"
+    },
+    {
+      "item": "draconicevolution:chaotic_core"
+    },
+    {
+      "item": "draconicevolution:awakened_core"
+    },
+    {
+      "item": "draconicevolution:wyvern_core"
+    },
+    {
+      "item": "draconicevolution:draconium_core"
+    }
+  ],
+  "result": {
+    "item": "hussein:nice_food"
+  },
+  "tier": "CHAOTIC",
+  "total_energy": 250000000
+}
